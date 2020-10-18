@@ -52,7 +52,6 @@ class User {
 	final Map<String, List<PeriodData>> schedule;
 
 	/// The advisory for this user. 
-	// TODO: work this into the logic. 
 	final Advisory advisory;
 
 	/// This user's contact information. 
@@ -131,8 +130,12 @@ class User {
 		Range getTime(int index) => day.isModified 
 			? null : special.periods [index];
 
+		final int periodCount = day.isModified
+			? schedule [day.name].length
+			: special.periods.length;
+
 		return [
-			for (int index = 0; index < special.periods.length; index++)
+			for (int index = 0; index < periodCount; index++)
 				if (special.homeroom == index) Period(
 					PeriodData.free,			
 					period: "Homeroom",
