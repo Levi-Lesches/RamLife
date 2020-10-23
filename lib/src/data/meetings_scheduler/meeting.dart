@@ -4,14 +4,14 @@ import 'package:ramaz/src/data/contact_info.dart';
 class Meeting{
   DateTime dateTime;
   String location;
-  String duration;
+  Duration duration;
   String studentMessage;
   String teacherMessage;
   ContactInfo student;
   ContactInfo teacher;
   String meetingReason;
   bool isInPerson;
-  bool isApproved;
+  bool approvalStatus;
   Meeting(
       this.dateTime,
       this.duration,
@@ -21,7 +21,7 @@ class Meeting{
       this.teacher,
       this.meetingReason,
       this.isInPerson,
-      this.isApproved,
+      this.approvalStatus,
       {this.location}
       );
 }
