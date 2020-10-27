@@ -160,9 +160,9 @@ class User {
 		];
 	}
 	List<Range> getFreePeriods(Day day)=>[
-					for(final Period period in getPeriods(day))
-					if(period.isFree)
-					period.time
+		for(final Period period in getPeriods(day))
+		if(period.isFree)
+		period.time
 	];
 
 }
