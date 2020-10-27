@@ -24,57 +24,62 @@
 /// 	state should depend on their corresponding view model.
 library models;
 
-import "package:ramaz/services.dart";
-import "src/models/data/admin.dart";
+import "src/models/data/model.dart";
 import "src/models/data/reminders.dart";
 import "src/models/data/schedule.dart";
 import "src/models/data/sports.dart";
+import "src/models/data/user.dart";
 
 // data models
-export "src/models/data/admin.dart";
 export "src/models/data/reminders.dart";
 export "src/models/data/schedule.dart";
 export "src/models/data/sports.dart";
+export "src/models/data/user.dart";
 
 // view models
 export "src/models/view/builders/day_builder.dart";
 export "src/models/view/builders/reminder_builder.dart";
 export "src/models/view/builders/special_builder.dart";
 export "src/models/view/builders/sports_builder.dart";
+export "src/models/view/calendar_editor.dart";
 export "src/models/view/feedback.dart";
 export "src/models/view/home.dart";
 export "src/models/view/schedule.dart";
 export "src/models/view/sports.dart";
 
-class Models {
-	static Reminders reminders;
+class Models extends Model {
+	static Models instance = Models();
 
-	static Schedule schedule;
+	Reminders reminders;
+	Schedule schedule;
+	Sports sports;
+	UserModel user;
 
-	static Sports sports;
-
-	static AdminModel admin;
-
-	static Future<void> init() async {
+	@override
+	Future<void> init() async {
+		user  = UserModel();
 		reminders = Reminders();
-		await reminders.init();
 		schedule = Schedule();
-		await schedule.init();
 		sports = Sports();
+
+		await user.init();
+		await reminders.init();
+		await schedule.init();
 		await sports.init(refresh: true);
-		if (await Auth.isAdmin) {
-			admin = AdminModel();
-			await admin.init();
-		}
 	}
 
-	static void reset() {
+	@override
+	// This object can be revived using [init].
+	// ignore: must_call_super
+	void dispose() {
 		schedule?.dispose();
 		reminders?.dispose();
 		sports?.dispose();
+		user?.dispose();
+
 		reminders = null;
 		schedule = null;
 		sports = null;
-		admin = null;
+		user = null;
 	}
 }
