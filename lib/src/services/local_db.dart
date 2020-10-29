@@ -107,12 +107,14 @@ class LocalDatabase extends Database {
 	/// The name for the sports object store. 
 	static const String sportsStoreName = "sports";
 
+	static const String clubsStoreName = "clubs";
+
 	/// All the object stores. 
 	/// 
 	/// This is used in [signOut] to purge all the data. 
 	static const List<String> storeNames = [
 		userStoreName, sectionStoreName, calendarStoreName, reminderStoreName,
-		adminStoreName, sportsStoreName,
+		adminStoreName, sportsStoreName, clubsStoreName,
 	];
 
 	/// The idb database itself. 
@@ -127,17 +129,20 @@ class LocalDatabase extends Database {
 		..createObjectStore(calendarStoreName, keyPath: "month")
 		..createObjectStore(reminderStoreName, autoIncrement: true)
 		..createObjectStore(adminStoreName, keyPath: "email")
+		..createObjectStore(clubsStoreName, keyPath: "id")
 		..createObjectStore(sportsStoreName, autoIncrement:  true);
 
 	@override 
 	Future<void> init() async => database = await (await idbFactory).open(
 		"ramaz.db",
-		version: 1, 
+		version: 2, 
 		onUpgradeNeeded: (idb.VersionChangeEvent event) {
 			switch (event.oldVersion) {
-				case 0: // fresh install
+				case 0:  // fresh install
 					createObjectStores(event.database);
 					break;
+				case 1:  // added the clubs object store. 
+					event.database.createObjectStore(clubsStoreName, keyPath: "id");
 			}
 		}
 	);
@@ -214,4 +219,7 @@ class LocalDatabase extends Database {
 			await database.update(sportsStoreName, entry);
 		}
 	}
+
+	@override
+	Future<List<Map<String, dynamic>>> get allClubs async => null;
 }

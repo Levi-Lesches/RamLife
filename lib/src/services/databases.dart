@@ -139,4 +139,8 @@ class Databases extends Database {
 		await cloudDatabase.setSports(json);
 		await localDatabase.setSports(json);
 	}
+
+	@override
+	Future<List<Map<String, dynamic>>> get allClubs => 
+		cloudDatabase.allClubs;
 }

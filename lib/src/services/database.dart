@@ -110,5 +110,6 @@ abstract class Database extends Service {
 	/// Only admins can change this. 
 	Future<void> setSports(List<Map<String, dynamic>> json);
 
-	Future<Map<String, dynamic>> getClub(String id);
+	/// Gets a list of all the clubs to browse through. 
+	Future<List<Map<String, dynamic>>> get allClubs;
 }

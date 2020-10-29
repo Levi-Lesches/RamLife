@@ -16,7 +16,7 @@ abstract class ClubsModel {
 		// Step 1. Get the raw JSON. 
 		// Step 2. Turn them into a list of clubs
 		final List<Map<String, dynamic>> rawJson = 
-			await Services.instance.database.getAllClubs();
+			await Services.instance.database.allClubs;
 
 		final List<Club> result = [];
 		for (final Map<String, dynamic> json in rawJson) {

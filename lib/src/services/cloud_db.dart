@@ -214,6 +214,19 @@ class CloudDatabase extends Database {
 	Future<void> setSports(List<Map<String, dynamic>> json) => 
 		sportsDocument.set({sportsKey: json});
 
+	@override
+	Future<List<Map<String, dynamic>>> get allClubs async {
+		const String collectionName = "clubs";
+		final CollectionReference clubsCollection = 
+			firestore.collection(collectionName);
+		final List<Map<String, dynamic>> result = [];
+		final QuerySnapshot query = await clubsCollection.get();
+		for (final DocumentSnapshot document in query.docs) {
+			result.add(document.data());
+		}
+		return result;
+	}
+
 	/// Submits feedback. 
 	Future<void> sendFeedback(
 		Map<String, dynamic> json
