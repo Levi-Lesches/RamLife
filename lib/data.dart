@@ -1,3 +1,5 @@
+// ignore_for_file: directives_ordering
+
 /// This library handles storing all the data in the app. 
 /// 
 /// This library contains dataclasses to store and serialize data.
@@ -8,14 +10,10 @@
 /// other app should be implemented in this library.
 library data;
 
-export "src/data/admin.dart";
 
 // The clubs feature
 export "src/data/clubs/club.dart";
 export "src/data/clubs/message.dart";
-
-export "src/data/feedback.dart";
-export "src/data/reminder.dart";
 
 // The schedule feature
 export "src/data/schedule/activity.dart";
@@ -26,5 +24,9 @@ export "src/data/schedule/special.dart";
 export "src/data/schedule/subject.dart";
 export "src/data/schedule/time.dart";
 
+export "src/data/admin.dart";
+export "src/data/contact_info.dart";
+export "src/data/feedback.dart";
+export "src/data/reminder.dart";
 export "src/data/sports.dart";
 export "src/data/user.dart";

@@ -7,6 +7,14 @@ import "package:meta/meta.dart";
 /// this data is retrieved from the database, which needs the user's email,
 /// so the authentication service is still needed for that. 
 class ContactInfo {
+	/// Creates a contact from JSON. 
+	// ignore: prefer_constructors_over_static_methods
+	static ContactInfo fromJson(Map<String, dynamic> json) => ContactInfo(
+		name: json ["name"],
+		email: json ["email"],
+		phoneNumber: json ["phoneNumber"]
+	);
+
 	/// The user's name.
 	final String name;
 
@@ -25,10 +33,4 @@ class ContactInfo {
 		@required this.email,
 		@required this.phoneNumber,
 	});
-
-	/// Creates a contact from JSON. 
-	ContactInfo.fromJson(Map<String, dynamic> json) : 
-		name = json ["name"],
-		email = json ["email"],
-		phoneNumber = json ["phoneNumber"];
 }
