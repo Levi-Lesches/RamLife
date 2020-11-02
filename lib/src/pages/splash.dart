@@ -5,10 +5,10 @@ import "package:flutter/material.dart";
 import "package:flutter/foundation.dart" show kDebugMode;
 import "package:flutter/services.dart";
 
-import "package:ramaz/services.dart";
+import "package:ramaz/app.dart";
 import "package:ramaz/models.dart";
+import "package:ramaz/services.dart";
 import "package:ramaz/widgets.dart";
-import "package:ramaz/main.dart";
 
 /// A splash screen that discreetly loads the device's brightness. 
 class SplashScreen extends StatefulWidget {
@@ -17,9 +17,13 @@ class SplashScreen extends StatefulWidget {
 }
 
 class SplashScreenState extends State<SplashScreen> {
+	bool firstTry = true;
+	bool hasError = false;
+
 	Brightness brightness;
 	bool isSignedIn;
-	bool firstTry = true;
+	bool isLoading = false;
+	String error;
 
 	@override
 	void initState() {
@@ -30,10 +34,11 @@ class SplashScreenState extends State<SplashScreen> {
 
 	Future<void> init() async {
 		await initServices();
+		initBrightness();
 		if (isSignedIn) {
 			try {
 				await Models.instance.init();
-			} catch(error) {  // ignore: avoid_catches_without_on_clauses
+			} catch (code, stack) {  // ignore: avoid_catches_without_on_clauses
 				debugPrint("[SplashScreenState.init]: Error loading data");
 				if (!firstTry && !kDebugMode) {
 					debugPrint("  Wiping data and trying again");
@@ -41,11 +46,24 @@ class SplashScreenState extends State<SplashScreen> {
 					firstTry = false;
 					return init();
 				} else {
-					// TODO: open error page. 
+					setState(() {
+						isLoading = false;
+						hasError = true;
+						error = "$code\n$stack";
+					});
+					rethrow;
 				}
 			}
 		}
 		await launchApp();
+	}
+
+	void initBrightness() {
+		final bool isLightMode = Services.instance.prefs.brightness;
+		final Brightness brightness = isLightMode == null
+			? MediaQuery.of(context).platformBrightness
+			: isLightMode ? Brightness.light : Brightness.dark;
+		ThemeChanger.of(context).brightness = brightness;
 	}
 
 	Future<void> initServices() async {
@@ -55,14 +73,9 @@ class SplashScreenState extends State<SplashScreen> {
 	}
 
 	Future<void> launchApp() async {
-		final bool isLightMode = Services.instance.prefs.brightness;
-		final Brightness brightness = isLightMode == null
-			? MediaQuery.of(context).platformBrightness
-			: isLightMode ? Brightness.light : Brightness.dark;
 		final Crashlytics crashlytics = Services.instance.crashlytics;
 		await crashlytics.toggle(!kDebugMode);
 		FlutterError.onError = crashlytics.recordFlutterError;
-		ThemeChanger.of(context).brightness = brightness;
 		runZonedGuarded(
 			() => runApp(
 				RamazApp(
@@ -74,7 +87,51 @@ class SplashScreenState extends State<SplashScreen> {
 	}
 
 	@override 
-	Widget build (BuildContext context) => const Scaffold(
-		body: Center(child: RamazLogos.ramSquareWords)
+	Widget build (BuildContext context) => Scaffold(
+		body: !hasError 
+			? const Center(child: RamazLogos.ramSquareWords)
+			: Padding(
+				padding: const EdgeInsets.symmetric(horizontal: 20),
+				child: Column(
+					children: [
+						if (isLoading)
+							const LinearProgressIndicator(),
+						const Spacer(flex: 5),
+						Text(
+							"RamLife is having difficulties starting. Make sure your app " 
+							"is updated and try again.",
+							style: Theme.of(context).textTheme.headline4,
+							textAlign: TextAlign.center,
+						),
+						const Spacer(flex: 2),
+						OutlineButton(
+							onPressed: () async {
+								setState(() => isLoading = true);
+								await Services.instance.database.signOut();
+								await init();
+							},
+							child: const Text("Reset"),
+						),
+						const Spacer(flex: 1),
+						Text(
+							"The exact error is below",
+							style: Theme.of(context).textTheme.subtitle1,
+						),
+						const SizedBox(height: 30),
+						SizedBox(
+							height: 200, 
+							child: SingleChildScrollView(
+								child: Text(
+									error,
+									style: Theme.of(context).textTheme.caption.copyWith(
+										color: Theme.of(context).colorScheme.error,
+									),
+								),
+							),
+						),
+						const Spacer(flex: 3),
+					]
+				)	
+			)
 	);
 }
